@@ -27,6 +27,7 @@ import {
   processSensorReading,
   DEFAULT_THRESHOLDS,
 } from './utils/accidentDetection';
+import { playEmergencySiren } from './utils/audioAlert';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
@@ -231,16 +232,23 @@ export default function App() {
             setSystemConnected(data.sensors.connected);
           }
 
-          if (data.activeVerification) {
+          if (data.activeVerification && data.activeVerification.event) {
             const actEvt = data.activeVerification.event;
-            setPendingVerificationEvent(actEvt);
-            setRemainingSeconds(data.activeVerification.remainingSeconds);
+            // Only set pending verification when actively counting down
+            if (actEvt.status === 'PENDING_VERIFICATION') {
+              setPendingVerificationEvent(actEvt);
+              setRemainingSeconds(data.activeVerification.remainingSeconds ?? 10);
+            } else {
+              setPendingVerificationEvent(null);
+            }
 
+            // Confirmed accident or Manual SOS
             if (actEvt.status === 'CONFIRMED' || actEvt.status === 'MANUAL_SOS') {
               setConfirmedEmergencyEvent(actEvt);
             }
           } else {
             setPendingVerificationEvent(null);
+            setConfirmedEmergencyEvent(null);
           }
         } catch (parseErr) {
           console.debug('SSE parse error:', parseErr);
@@ -258,6 +266,22 @@ export default function App() {
       if (eventSource) eventSource.close();
     };
   }, [loadInitialData]);
+
+  // Dismiss / Stand Down Emergency Handler (synchronizes with server)
+  const handleDismissEmergency = async () => {
+    setConfirmedEmergencyEvent(null);
+    setPendingVerificationEvent(null);
+    try {
+      await fetch('/api/accidents/dismiss', { method: 'POST' });
+      const histRes = await fetch('/api/accidents/history');
+      if (histRes.ok) {
+        const histData = await histRes.json();
+        setAccidentHistory(histData.events || []);
+      }
+    } catch (err) {
+      console.debug('Dismiss error:', err);
+    }
+  };
 
   // Demo Mode Preset Trigger
   const handleTriggerPreset = async (preset: string) => {
@@ -277,6 +301,7 @@ export default function App() {
       if (preset === 'RESET') {
         setPendingVerificationEvent(null);
         setConfirmedEmergencyEvent(null);
+        await fetch('/api/accidents/dismiss', { method: 'POST' });
       }
 
       // Refresh history
@@ -295,6 +320,9 @@ export default function App() {
   // Manual SOS Trigger
   const handleTriggerSOS = async () => {
     try {
+      // Play audible emergency alarm
+      playEmergencySiren();
+
       const res = await fetch('/api/accidents/sos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -302,7 +330,7 @@ export default function App() {
       const data = await res.json();
       if (data.event) {
         setConfirmedEmergencyEvent(data.event);
-        setActiveTab('workflow');
+        setPendingVerificationEvent(null);
       }
 
       const histRes = await fetch('/api/accidents/history');
@@ -329,7 +357,7 @@ export default function App() {
         setPendingVerificationEvent(null);
       } else if (action === 'CONFIRM' && data.event) {
         setConfirmedEmergencyEvent(data.event);
-        setActiveTab('workflow');
+        setPendingVerificationEvent(null);
       }
 
       const histRes = await fetch('/api/accidents/history');
@@ -408,6 +436,7 @@ export default function App() {
         systemStatus={{
           connected: systemConnected,
           hasPendingAlert: pendingVerificationEvent !== null,
+          hasActiveEmergency: confirmedEmergencyEvent !== null,
           source,
         }}
         currentUser={currentUser}
@@ -432,7 +461,7 @@ export default function App() {
             event={confirmedEmergencyEvent}
             profile={profile}
             contacts={contacts}
-            onDismiss={() => setConfirmedEmergencyEvent(null)}
+            onDismiss={handleDismissEmergency}
           />
         )}
 
@@ -480,6 +509,7 @@ export default function App() {
             hospitals={hospitals}
             onTriggerSOS={handleTriggerSOS}
             onOpenMap={() => setActiveTab('location')}
+            onDismissEmergency={handleDismissEmergency}
           />
         )}
 
@@ -498,6 +528,8 @@ export default function App() {
             hasActiveIncident={pendingVerificationEvent !== null || confirmedEmergencyEvent !== null}
             remainingSeconds={remainingSeconds}
             onSendSensorData={handleWorkbenchSensorInject}
+            onTriggerSOS={handleTriggerSOS}
+            onConfirmSafe={() => handleVerifyAction('SAFE')}
           />
         )}
 

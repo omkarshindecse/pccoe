@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Cpu, Copy, Check, ExternalLink, Sliders, Volume2, Sparkles, AlertCircle } from 'lucide-react';
+import { Cpu, Copy, Check, ExternalLink, Sliders, Volume2, Sparkles, AlertCircle, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { ProcessedData, LocationData } from '../types';
 import { playCountdownBeep } from '../utils/audioAlert';
 
@@ -9,6 +9,8 @@ interface VirtualHardwareWorkbenchProps {
   hasActiveIncident: boolean;
   remainingSeconds: number;
   onSendSensorData: (data: { ax: number; ay: number; az: number; gx: number; gy: number; gz: number }) => void;
+  onTriggerSOS?: () => void;
+  onConfirmSafe?: () => void;
 }
 
 export const VirtualHardwareWorkbench: React.FC<VirtualHardwareWorkbenchProps> = ({
@@ -17,6 +19,8 @@ export const VirtualHardwareWorkbench: React.FC<VirtualHardwareWorkbenchProps> =
   hasActiveIncident,
   remainingSeconds,
   onSendSensorData,
+  onTriggerSOS,
+  onConfirmSafe,
 }) => {
   const [copiedFile, setCopiedFile] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'workbench' | 'wokwi_code' | 'diagram' | 'analysis'>('workbench');
@@ -231,17 +235,45 @@ export const VirtualHardwareWorkbench: React.FC<VirtualHardwareWorkbenchProps> =
                 </div>
               </div>
 
-              {/* Buzzer Sound Test Affordance */}
-              <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
-                <span className="text-xs text-slate-400 flex items-center gap-1">
-                  <Volume2 className="w-3.5 h-3.5 text-amber-400" /> Test Piezo Buzzer:
-                </span>
-                <button
-                  onClick={() => playCountdownBeep(2400, 0.3)}
-                  className="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
-                >
-                  Play 2.4kHz Beep
-                </button>
+              {/* Hardware Button & Buzzer Interactive Affordances */}
+              <div className="mt-4 pt-3 border-t border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400 flex items-center gap-1">
+                    <Volume2 className="w-3.5 h-3.5 text-amber-400" /> Piezo Buzzer (GPIO 25):
+                  </span>
+                  <button
+                    onClick={() => playCountdownBeep(2400, 0.3)}
+                    className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
+                  >
+                    Play Beep (2.4kHz)
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs text-slate-400 flex items-center gap-1">
+                    <ShieldAlert className="w-3.5 h-3.5 text-rose-500" /> SOS Button (GPIO 27):
+                  </span>
+                  <button
+                    onClick={onTriggerSOS}
+                    className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-700/50 transition-colors flex items-center gap-1 shadow-sm"
+                  >
+                    <span>Press SOS</span>
+                  </button>
+                </div>
+
+                {hasActiveIncident && (
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-xs text-slate-400 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Safe Button (GPIO 14):
+                    </span>
+                    <button
+                      onClick={onConfirmSafe}
+                      className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/50 transition-colors flex items-center gap-1 shadow-sm"
+                    >
+                      <span>Press I'M SAFE</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 

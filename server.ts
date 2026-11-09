@@ -423,7 +423,10 @@ function dismissFalseAlarm() {
 
 // Periodic background telemetry drift when in DEMO mode to simulate live sensor stream
 setInterval(() => {
-  if (currentSensorState.source === 'DEMO_MODE' && !activeVerification.event) {
+  if (
+    currentSensorState.source === 'DEMO_MODE' &&
+    (!activeVerification.event || activeVerification.event.status !== 'PENDING_VERIFICATION')
+  ) {
     // Subtle normal road vibration noise
     const noise = () => (Math.random() - 0.5) * 0.04;
     currentSensorState.reading = {
@@ -580,6 +583,12 @@ app.post('/api/accidents/verify', (req: Request, res: Response) => {
 
 // Manual SOS Button
 app.post('/api/accidents/sos', (req: Request, res: Response) => {
+  // Clear any pending verification countdown timer
+  if (activeVerification.countdownTimer) {
+    clearInterval(activeVerification.countdownTimer);
+    activeVerification.countdownTimer = null;
+  }
+
   const now = Date.now();
   const eventId = `EVT-SOS-${now.toString().slice(-6)}`;
   const dateObj = new Date(now);
@@ -630,6 +639,22 @@ app.post('/api/accidents/sos', (req: Request, res: Response) => {
     success: true,
     message: 'Manual SOS triggered successfully.',
     event: sosEvent,
+  });
+});
+
+// Dismiss / Stand Down Active Emergency or SOS
+app.post('/api/accidents/dismiss', (req: Request, res: Response) => {
+  if (activeVerification.countdownTimer) {
+    clearInterval(activeVerification.countdownTimer);
+    activeVerification.countdownTimer = null;
+  }
+  activeVerification.event = null;
+  activeVerification.remainingSeconds = 0;
+  broadcastState();
+
+  res.json({
+    success: true,
+    message: 'Active emergency or SOS stood down and cleared.',
   });
 });
 

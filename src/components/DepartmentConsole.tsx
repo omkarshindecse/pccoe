@@ -7,6 +7,7 @@ import {
   MapPin,
   Clock,
   ShieldCheck,
+  ShieldAlert,
   Send,
   Sliders,
   CheckCircle2,
@@ -20,13 +21,16 @@ interface DepartmentConsoleProps {
   hospitals: NearbyHospital[];
   onTriggerSOS: () => void;
   onOpenMap: () => void;
+  onDismissEmergency?: () => void;
 }
 
 export const DepartmentConsole: React.FC<DepartmentConsoleProps> = ({
   currentUser,
   events,
   hospitals,
+  onTriggerSOS,
   onOpenMap,
+  onDismissEmergency,
 }) => {
   const [activeSection, setActiveSection] = useState<'DISPATCH' | 'ANALYTICS' | 'FLEET'>('DISPATCH');
   const [dispatchedAmbulances, setDispatchedAmbulances] = useState<string[]>([]);
@@ -72,6 +76,14 @@ export const DepartmentConsole: React.FC<DepartmentConsoleProps> = ({
         </div>
 
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <button
+            onClick={onTriggerSOS}
+            className="px-4 py-2.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white transition-colors flex items-center gap-2 shadow-md cursor-pointer"
+          >
+            <ShieldAlert className="w-4 h-4" />
+            <span>Trigger Emergency SOS</span>
+          </button>
+
           <button
             onClick={toggleHighwayBroadcast}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-md ${
@@ -218,9 +230,19 @@ export const DepartmentConsole: React.FC<DepartmentConsoleProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2">
+                        {onDismissEmergency && (
+                          <button
+                            onClick={onDismissEmergency}
+                            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                            title="Acknowledge incident and stand down active emergency"
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Stand Down</span>
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDispatchHospital(hospitals[0]?.id || 'hosp-1')}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition-colors"
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                           <Ambulance className="w-3.5 h-3.5" />
                           <span>Dispatch Amrutvahini Trauma 108</span>

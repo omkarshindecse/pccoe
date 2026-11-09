@@ -29,6 +29,7 @@ interface NavbarProps {
   systemStatus: {
     connected: boolean;
     hasPendingAlert: boolean;
+    hasActiveEmergency?: boolean;
     source: string;
   };
   currentUser: AuthUser;
@@ -41,6 +42,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
+  systemStatus,
   currentUser,
   onOpenLogin,
   onSwitchRole,
@@ -188,10 +190,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Manual SOS Trigger */}
             <button
               onClick={onTriggerSOS}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-rose-600 rounded-lg hover:bg-rose-500 transition-colors whitespace-nowrap shrink-0 shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer ${
+                systemStatus.hasActiveEmergency
+                  ? 'bg-rose-700 text-white animate-pulse ring-2 ring-rose-400'
+                  : 'bg-rose-600 text-white hover:bg-rose-500'
+              }`}
             >
               <ShieldAlert className="w-3.5 h-3.5" />
-              <span>Manual SOS</span>
+              <span>{systemStatus.hasActiveEmergency ? 'SOS Active' : 'Manual SOS'}</span>
             </button>
           </div>
         </div>

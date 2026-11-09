@@ -22,28 +22,30 @@ export const EmergencyAlertPanel: React.FC<EmergencyAlertPanelProps> = ({
       {/* High Urgency Header */}
       <div className="bg-gradient-to-r from-rose-800 via-rose-600 to-rose-800 px-6 py-4 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-white/10 text-white">
+          <div className="p-2.5 rounded-xl bg-white/10 text-white shadow-inner">
             <AlertTriangle className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <span className="text-[11px] font-mono uppercase tracking-widest text-rose-200">
-              SADES Emergency Response System
+            <span className="text-[11px] font-mono uppercase tracking-widest text-rose-200 font-semibold">
+              {event.status === 'MANUAL_SOS' ? 'SOS Emergency Beacon Active' : 'SADES Emergency Response System'}
             </span>
             <h2 className="text-xl font-black tracking-tight uppercase">
-              Emergency Alert Triggered!
+              {event.status === 'MANUAL_SOS' ? 'Manual SOS Emergency Dispatched!' : 'Emergency Alert Triggered!'}
             </h2>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 rounded bg-rose-950/80 border border-rose-400/40 text-xs font-mono font-bold text-rose-200">
+          <span className="px-2.5 py-1 rounded bg-rose-950/90 border border-rose-400/50 text-xs font-mono font-bold text-rose-200">
             {event.id}
           </span>
           <button
             onClick={onDismiss}
-            className="px-3 py-1 text-xs font-semibold rounded bg-white text-rose-950 hover:bg-rose-50 transition-colors"
+            className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-white text-rose-950 hover:bg-rose-50 shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+            title="Acknowledge alert and stand down active emergency"
           >
-            Acknowledge & Close
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Acknowledge & Stand Down</span>
           </button>
         </div>
       </div>
@@ -80,7 +82,9 @@ export const EmergencyAlertPanel: React.FC<EmergencyAlertPanelProps> = ({
             <div className="text-white font-mono font-bold mt-1 text-sm truncate">
               {event.verification.verifiedBy === 'MANUAL_SOS' ? 'Manual SOS' : 'Auto Timeout'}
             </div>
-            <div className="text-[10px] text-emerald-400">10s Window Expired</div>
+            <div className="text-[10px] text-emerald-400">
+              {event.verification.verifiedBy === 'MANUAL_SOS' ? 'Instant Driver Trigger' : '10s Window Expired'}
+            </div>
           </div>
         </div>
 
