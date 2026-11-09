@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "author": "Omkar Shinde & Team Alert (AVCOE Sangamner)",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-mpu6050", "id": "mpu1", "top": -150, "left": 150, "attrs": {} },
+    { "type": "board-ssd1306", "id": "oled1", "top": -160, "left": -80, "attrs": { "i2cAddress": "0x3c" } },
+    { "type": "wokwi-buzzer", "id": "bz1", "top": 120, "left": 230, "attrs": { "volume": "0.1" } },
+    { "type": "wokwi-pushbutton", "id": "btn_safe", "top": 210, "left": -60, "attrs": { "color": "green", "label": "I'M SAFE" } },
+    { "type": "wokwi-pushbutton", "id": "btn_sos", "top": 210, "left": 40, "attrs": { "color": "red", "label": "MANUAL SOS" } }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "esp:3V3", "mpu1:VCC", "red", [ "v0" ] ],
+    [ "esp:GND.1", "mpu1:GND", "black", [ "v0" ] ],
+    [ "esp:21", "mpu1:SDA", "blue", [ "v0" ] ],
+    [ "esp:22", "mpu1:SCL", "yellow", [ "v0" ] ],
+    [ "esp:3V3", "oled1:VCC", "red", [ "v0" ] ],
+    [ "esp:GND.1", "oled1:GND", "black", [ "v0" ] ],
+    [ "esp:21", "oled1:SDA", "blue", [ "v0" ] ],
+    [ "esp:22", "oled1:SCL", "yellow", [ "v0" ] ],
+    [ "esp:25", "bz1:2", "purple", [ "v0" ] ],
+    [ "esp:GND.2", "bz1:1", "black", [ "v0" ] ],
+    [ "esp:14", "btn_safe:2.1", "green", [ "v0" ] ],
+    [ "esp:GND.2", "btn_safe:1.1", "black", [ "v0" ] ],
+    [ "esp:27", "btn_sos:2.1", "red", [ "v0" ] ],
+    [ "esp:GND.2", "btn_sos:1.1", "black", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}

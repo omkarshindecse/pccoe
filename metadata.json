@@ -1,0 +1,6 @@
+{
+  "name": "SADES – Smart Accident Detection & Emergency Response System",
+  "description": "IoT-powered smart accident detection and emergency response system with virtual ESP32, MPU6050 accelerometer/gyroscope, GPS NEO-6M, and automated alert dispatch.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

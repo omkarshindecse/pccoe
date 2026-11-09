@@ -1,0 +1,7 @@
+# SADES Wokwi Dependencies
+Adafruit MPU6050
+Adafruit Unified Sensor
+Adafruit SSD1306
+Adafruit GFX Library
+ArduinoJson
+TinyGPSPlus
