@@ -7,7 +7,7 @@ import {
   Building2,
   Ambulance,
   ArrowLeftRight,
-  LogOut,
+  Download,
 } from 'lucide-react';
 import { setAudioMuted, getAudioMuted } from '../utils/audioAlert';
 import { AuthUser, UserRole } from '../types';
@@ -154,6 +154,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span>Switch</span>
               </button>
             </div>
+
+            {/* Download Project ZIP for GitHub */}
+            <a
+              href="/sades-project.zip"
+              download="SADES_Complete_GitHub_Project.zip"
+              title="Download Complete Source Code for GitHub (.zip)"
+              className="px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+            >
+              <Download className="w-3.5 h-3.5 text-rose-400" />
+              <span className="hidden sm:inline">Download ZIP</span>
+            </a>
 
             {/* Login / Auth Portal Button */}
             <button

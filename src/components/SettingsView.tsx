@@ -1,5 +1,20 @@
 import React, { useState } from 'react';
-import { User, Phone, Sliders, Shield, Plus, Trash2, Save, Check } from 'lucide-react';
+import {
+  User,
+  Phone,
+  Sliders,
+  Shield,
+  Plus,
+  Trash2,
+  Save,
+  Check,
+  Download,
+  Terminal,
+  Copy,
+  Laptop,
+  CheckCircle2,
+  FileCode,
+} from 'lucide-react';
 import { UserProfile, EmergencyContact } from '../types';
 
 interface SettingsViewProps {
@@ -33,6 +48,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [contactsList, setContactsList] = useState<EmergencyContact[]>(contacts);
   const [thresholdForm, setThresholdForm] = useState(thresholds);
   const [savedBanner, setSavedBanner] = useState<string | null>(null);
+  const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard?.writeText(text);
+    setCopiedCommand(label);
+    setTimeout(() => setCopiedCommand(null), 2500);
+  };
 
   const handleSaveAll = () => {
     onSaveProfile(userForm);
@@ -338,6 +360,133 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <Save className="w-4 h-4" />
           <span>Save System Configurations</span>
         </button>
+      </div>
+
+      {/* GitHub Project Export & Offline Run Guide */}
+      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-6 text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-2 text-rose-400">
+            <FileCode className="w-4 h-4" />
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+              Complete Project Package & GitHub Upload Guide
+            </h3>
+          </div>
+
+          <a
+            href="/sades-project.zip"
+            download="SADES_Complete_GitHub_Project.zip"
+            className="px-4 py-2 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 shadow-md transition-all self-start sm:self-auto cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download All Files (.ZIP)</span>
+          </a>
+        </div>
+
+        <p className="text-slate-400 text-xs leading-relaxed">
+          The download package includes the entire source code (Node.js/Express backend, Vite React frontend, Leaflet mapping, Recharts 30-day analytics, MPU6050 algorithm, ESP32 Arduino C++ firmware, and Wokwi simulation files). Everything is ready to push directly to GitHub and run on any other computer.
+        </p>
+
+        {/* 2-Column Instructions: Run Locally vs Push to GitHub */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Card 1: How to run on another computer */}
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+            <div className="flex items-center gap-2 text-sky-400 font-bold text-xs uppercase tracking-wider">
+              <Laptop className="w-4 h-4" />
+              <span>1. Run on Another System</span>
+            </div>
+
+            <ol className="list-decimal list-inside space-y-2 text-slate-300 text-[11px] leading-relaxed">
+              <li>
+                <strong className="text-white">Extract</strong> <code className="text-rose-300 bg-slate-900 px-1 py-0.5 rounded">SADES_Complete_GitHub_Project.zip</code> to a folder.
+              </li>
+              <li>
+                Ensure you have <strong className="text-white">Node.js 18+</strong> installed.
+              </li>
+              <li>
+                Open a terminal in the extracted folder and run:
+                <div className="mt-1.5 p-2 rounded bg-slate-900 border border-slate-800 font-mono text-[11px] text-emerald-400 flex items-center justify-between">
+                  <span>npm install</span>
+                  <button
+                    onClick={() => copyToClipboard('npm install', 'npm-install')}
+                    className="text-slate-400 hover:text-white transition-colors"
+                    title="Copy command"
+                  >
+                    {copiedCommand === 'npm-install' ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              </li>
+              <li>
+                Start the full-stack system:
+                <div className="mt-1.5 p-2 rounded bg-slate-900 border border-slate-800 font-mono text-[11px] text-emerald-400 flex items-center justify-between">
+                  <span>npm run dev</span>
+                  <button
+                    onClick={() => copyToClipboard('npm run dev', 'npm-dev')}
+                    className="text-slate-400 hover:text-white transition-colors"
+                    title="Copy command"
+                  >
+                    {copiedCommand === 'npm-dev' ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              </li>
+              <li>
+                Open <strong className="text-white">http://localhost:3000</strong> in your browser.
+              </li>
+            </ol>
+          </div>
+
+          {/* Card 2: How to push to GitHub */}
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-purple-400 font-bold text-xs uppercase tracking-wider">
+                <Terminal className="w-4 h-4" />
+                <span>2. Upload to GitHub Repository</span>
+              </div>
+
+              <button
+                onClick={() =>
+                  copyToClipboard(
+                    `git init\ngit add .\ngit commit -m "Initial commit: SADES IoT Accident Detection System v6.0"\ngit branch -M main\ngit remote add origin https://github.com/<YOUR-USERNAME>/<YOUR-REPO-NAME>.git\ngit push -u origin main`,
+                    'git-all'
+                  )
+                }
+                className="text-[10px] font-mono px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 flex items-center gap-1 transition-colors"
+              >
+                {copiedCommand === 'git-all' ? (
+                  <>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3" />
+                    <span>Copy All</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <p className="text-slate-400 text-[11px]">
+              Run these commands in terminal inside the extracted project folder:
+            </p>
+
+            <pre className="p-2.5 rounded bg-slate-900 border border-slate-800 font-mono text-[10px] text-slate-300 space-y-1 overflow-x-auto leading-tight">
+              <div><span className="text-rose-400">git</span> init</div>
+              <div><span className="text-rose-400">git</span> add .</div>
+              <div><span className="text-rose-400">git</span> commit -m <span className="text-emerald-300">"SADES IoT Project"</span></div>
+              <div><span className="text-rose-400">git</span> branch -M main</div>
+              <div><span className="text-rose-400">git</span> remote add origin <span className="text-sky-300">https://github.com/USER/REPO.git</span></div>
+              <div><span className="text-rose-400">git</span> push -u origin main</div>
+            </pre>
+          </div>
+        </div>
       </div>
 
       {/* College Project & Team Alert Credentials (from PPT Slide 1) */}
